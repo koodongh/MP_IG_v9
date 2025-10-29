@@ -23,7 +23,7 @@ from pylogix import PLC
 g_cameraStatusUserInfo = b"statusInfo"
 
 global m_n
-m_n = '1905'
+m_n = '1901'
 
 # PLC 통신 클래스
 class SimplePLC:
@@ -34,6 +34,9 @@ class SimplePLC:
     
     def write(self, tag, value):
         return self.plc.Write(tag, value)
+
+    def read(self,tag):
+        return self.plc.Read(tag)
     
     def close(self):
         if hasattr(self, 'plc'):
@@ -448,8 +451,8 @@ def demo():
     global m_n
     
     # PLC 초기화
-    plc = SimplePLC('192.168.1.13', slot=0)  # PLC IP 주소를 실제 값으로 변경하세요
-    PLC_TAG = 'M1905_IG_DETECT_INPUT'
+    plc = SimplePLC('192.168.1.10', slot=0)  # PLC IP 주소를 실제 값으로 변경하세요
+    PLC_TAG = 'M1901_IG_DETECT_INPUT'
     
     cameraCnt, cameraList = enumCameras()
     if cameraCnt is None:
@@ -513,13 +516,13 @@ def demo():
     
     while isGrab :
         cnt =0
-        r = '/home/ubuntu/IG_/log.txt'
+        r = '/home/user/IG_/log.txt'
         while True:
         
             if os.path.exists(r):
                 print('Detect IG ===')
                 plc.write(PLC_TAG, True)
-                time.sleep(1.5)
+                time.sleep(5)
                 plc.write(PLC_TAG, False)
                 os.remove(r)
             if cnt == 1 :
@@ -527,6 +530,8 @@ def demo():
             
             else:
                 cnt += 1
+                plc.write(PLC_TAG, False)
+                print(plc.read(PLC_TAG))
                 print('-----',cnt)
                 time.sleep(1)
         #if os.path.exists(r):
@@ -592,12 +597,12 @@ def demo():
             colorByteArray = bytearray(rgbBuff)
             cvImage = numpy.array(colorByteArray).reshape(imageParams.height, imageParams.width, 3)
        # --- end if ---
-        r_ = '/home/ubuntu/_SEND'
+        r_ = '/home/user/_SEND'
         if os.path.exists(r_):
             pass
         else:   
             os.mkdir(r_)        
-        t = '/home/ubuntu/_SEND/'
+        t = '/home/user/_SEND/'
         t1 = t +'M'+m_n +'.jpg'
         img_c = cv2.resize(cvImage,(2048,2048),interpolation=cv2.INTER_LANCZOS4) 
         cv2.imwrite(t1,img_c)    
